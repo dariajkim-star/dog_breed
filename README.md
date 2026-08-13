@@ -1,12 +1,12 @@
-#FindDogBreed
-object detection으로 강아지를 학습시킨 후, 종 별 특징을  잘라 추출한 뒤, 내 강아지가 
+#FindDogBreed   
+object detection으로 사진에서 '강아지 이미지'를 잘라 모델에 학습시킨 후, 견종 별 특징을  추출한 뒤 내 강아지가 
 **어떤 견종의 외형적 특징과 얼마나 유사한지 추정하는 프로젝트**입니다.
 
 > **주의:** 최종 출력값은 이미지에서 관찰된 외형적 특징을 기준으로 계산한 **Phenotype Similarity Score**입니다.
 
 ---
 
-## 0. Pain Point & 문제정의
+## 0. Pain Point & 문제정의 (추후 수정)
 
 **Pain Point** — 사람도, 보호소 전문가도 믹스견의 품종 구성을 외형으로 잘 맞히지 못한다
 (DNA 대비 최우세 품종 정답률 56.7%, 두 품종 모두 정답 10.4% — Gunter et al. 2018).
