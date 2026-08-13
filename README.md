@@ -1,4 +1,4 @@
-# MixedBreed Vision
+# FindDogBreed
 
 ## Model Training & Inference Pipeline
 
