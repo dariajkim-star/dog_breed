@@ -1,5 +1,5 @@
 #FindDogBreed
-강아지 사진에서 강아지를 먼저 검출한 뒤, 순종 견종의 시각적 특징을 담은 Breed Encoder와 Breed Prototype을 이용해
+object detection으로 강아지를 학습시킨 후, 종 별 특징을  잘라 추출한 뒤, 내 강아지가 
 **어떤 견종의 외형적 특징과 얼마나 유사한지 추정하는 프로젝트**입니다.
 
 > **주의:** 최종 출력값은 이미지에서 관찰된 외형적 특징을 기준으로 계산한 **Phenotype Similarity Score**입니다.
