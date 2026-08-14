@@ -198,6 +198,12 @@ Cosine Similarity → Calibration → Normalization → Phenotype Similarity Sco
 
 ## 7. 평가지표
 
+![성능 평가 아키텍처](docs/assets/evaluation.svg)
+
+- 기능별로 따로 평가: 견종 판별력(breed test) / 거절 능력(OOD) / 검출력(COCO 외부) — 한 숫자로 뭉치지 않음
+- 믹스견 트랙만 산호색 = **정량 지표 없음** (혼합 비율 GT가 세상에 없으므로 정성 평가만)
+- 맨 아래 점선이 제1규칙: 모든 튜닝은 val에서, **test는 최종 1회** (사람 손에 의한 누수 방지)
+
 | 우선순위 | 지표 | 방법 | 비고 |
 |---|---|---|---|
 | **메인 KPI** | Purebred sanity check | 순종 test 입력 시 해당 품종이 Top-1인 비율 | GT가 확실한 유일한 composition 검증 |

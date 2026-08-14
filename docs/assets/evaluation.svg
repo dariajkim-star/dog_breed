@@ -1,0 +1,34 @@
+<svg width="680" viewBox="0 0 680 470" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>성능 평가 아키텍처</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>
+text{font-family:-apple-system,'Segoe UI','Malgun Gothic',sans-serif}
+.th{font-size:14px;font-weight:600}.ts{font-size:12px}
+</style></defs>
+<text class="ts" x="135" y="52" text-anchor="middle" fill="#5F5E5A">시험 데이터 (test, 최종 1회)</text>
+<text class="ts" x="360" y="52" text-anchor="middle" fill="#5F5E5A">모델 경로</text>
+<text class="ts" x="565" y="52" text-anchor="middle" fill="#5F5E5A">지표</text>
+<rect x="40" y="66" width="190" height="56" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="135" y="89" text-anchor="middle" fill="#444441">breed_body/test</text><text class="ts" x="135" y="107" text-anchor="middle" fill="#5F5E5A">순종 6,677장 · 25종</text>
+<line x1="230" y1="94" x2="264" y2="94" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="270" y="66" width="180" height="56" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text class="th" x="360" y="89" text-anchor="middle" fill="#3C3489">encode → prototype</text><text class="ts" x="360" y="107" text-anchor="middle" fill="#534AB7">cosine 유사도 순위</text>
+<line x1="450" y1="94" x2="484" y2="94" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="490" y="52" width="150" height="44" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="565" y="79" text-anchor="middle" fill="#085041">메인 KPI: sanity</text>
+<rect x="490" y="104" width="150" height="44" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="565" y="131" text-anchor="middle" fill="#085041">Top-1 / Top-3</text>
+<rect x="40" y="160" width="190" height="56" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="135" y="183" text-anchor="middle" fill="#444441">ood/test</text><text class="ts" x="135" y="201" text-anchor="middle" fill="#5F5E5A">고양이 1,200 + 순종</text>
+<line x1="230" y1="188" x2="264" y2="188" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="270" y="160" width="180" height="56" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text class="th" x="360" y="183" text-anchor="middle" fill="#3C3489">max similarity</text><text class="ts" x="360" y="201" text-anchor="middle" fill="#534AB7">거절 점수로 사용</text>
+<line x1="450" y1="188" x2="484" y2="188" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="490" y="166" width="150" height="44" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="565" y="193" text-anchor="middle" fill="#085041">OOD AUROC</text>
+<rect x="40" y="254" width="190" height="56" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="135" y="277" text-anchor="middle" fill="#444441">detection/test</text><text class="ts" x="135" y="295" text-anchor="middle" fill="#5F5E5A">COCO 177장 (외부)</text>
+<line x1="230" y1="282" x2="264" y2="282" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="270" y="254" width="180" height="56" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text class="th" x="360" y="277" text-anchor="middle" fill="#3C3489">YOLO11n</text><text class="ts" x="360" y="295" text-anchor="middle" fill="#534AB7">개 검출만 평가</text>
+<line x1="450" y1="282" x2="484" y2="282" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="490" y="260" width="150" height="44" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="565" y="287" text-anchor="middle" fill="#085041">recall · mAP@50</text>
+<rect x="40" y="348" width="190" height="56" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="135" y="371" text-anchor="middle" fill="#444441">믹스견 사진 (수집)</text><text class="ts" x="135" y="389" text-anchor="middle" fill="#5F5E5A">GT 없음 · 10~20장</text>
+<line x1="230" y1="376" x2="264" y2="376" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="270" y="348" width="180" height="56" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text class="th" x="360" y="371" text-anchor="middle" fill="#3C3489">전체 파이프라인</text><text class="ts" x="360" y="389" text-anchor="middle" fill="#534AB7">Top-3 출력</text>
+<line x1="450" y1="376" x2="484" y2="376" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="490" y="354" width="150" height="44" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/><text class="th" x="565" y="381" text-anchor="middle" fill="#712B13">정성 평가만</text>
+<rect x="40" y="428" width="600" height="30" rx="4" fill="none" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text class="ts" x="340" y="447" text-anchor="middle" fill="#5F5E5A">모든 튜닝(threshold·temperature)은 val에서만 — test는 마지막에 1회</text>
+</svg>
