@@ -20,6 +20,17 @@
 
 ---
 
+## 모델 아키텍처 한눈에 보기
+
+![MixedBreed Vision 모델 아키텍처](docs/assets/architecture.svg)
+
+- **딥러닝 모델은 보라색 2개** — ① YOLO11n(개 위치), ② DINOv2(외형→384-d embedding). Day-1은 둘 다 사전학습 그대로, 학습 0회
+- 회색은 모델이 아닌 규칙/계산 — `standard_crop()` 전처리 규칙, cosine similarity 거리 계산
+- **prototype DB**는 별도 모델이 아니라 DINOv2를 재사용해 25종 순종 embedding을 평균 낸 사전 준비물
+- 점선 상자 = MVP 이후 실험 트랙 (YOLO fine-tune, ResNet50/ArcFace) — 구조는 그대로, 보라 박스 내용물만 교체
+
+---
+
 ## 1. Stage 1 — Dog Detection
 
 일반 사진에서 강아지가 어디에 있는지 찾는 Object Detection 단계입니다.
