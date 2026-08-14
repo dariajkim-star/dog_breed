@@ -25,9 +25,12 @@ def load_split_arrays(
     per_class: Dict[str, int] = {}
 
     for path, label in iter_split(Path(split_dir)):
-        if cap is not None and per_class.get(label, 0) >= cap:
-            continue
-        per_class[label] = per_class.get(label, 0) + 1
+        # 이 클래스에서 지금까지 몇 장 담았는지 확인
+        count_so_far = per_class.get(label, 0)
+        if cap is not None and count_so_far >= cap:
+            continue  # cap을 채운 클래스는 건너뛴다
+        per_class[label] = count_so_far + 1
+
         images.append(load_image(path))
         labels.append(label)
         paths.append(str(path))
@@ -84,11 +87,17 @@ def build_and_save_prototypes(
 
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    breeds = sorted(prototypes)
+
+    # 견종 이름을 가나다순으로 정렬해 저장 — npz 안에서 순서가 항상 같도록
+    breeds = sorted(prototypes.keys())
+    prototype_rows = []
+    for breed in breeds:
+        prototype_rows.append(np.asarray(prototypes[breed]))
+
     np.savez_compressed(
         out,
         breeds=np.asarray(breeds),
-        prototypes=np.stack([np.asarray(prototypes[breed]) for breed in breeds]),
+        prototypes=np.stack(prototype_rows),
         global_mean=np.asarray(result["global_mean"]),
     )
     return breeds
@@ -99,12 +108,19 @@ def load_prototypes(path: Path | str) -> dict:
     import numpy as np
 
     data = np.load(path, allow_pickle=True)
-    breeds = [str(breed) for breed in data["breeds"]]
+
+    # npz의 breeds 배열(numpy 문자열)을 평범한 파이썬 문자열 리스트로 변환
+    breeds = []
+    for breed in data["breeds"]:
+        breeds.append(str(breed))
+
+    # {견종 이름: prototype 벡터} 딕셔너리로 복원
+    prototypes = {}
+    for index, breed in enumerate(breeds):
+        prototypes[breed] = data["prototypes"][index]
+
     return {
-        "prototypes": {
-            breed: data["prototypes"][index]
-            for index, breed in enumerate(breeds)
-        },
+        "prototypes": prototypes,
         "global_mean": data["global_mean"],
     }
 
@@ -123,8 +139,11 @@ def embed_single_image(
     from encoder import BreedEncoder
     from preprocessing import crop_dog, load_image
 
-    detector = detector or DogDetector()
-    encoder = encoder or BreedEncoder()
+    # 주입받은 모델이 없으면 새로 만든다 (반복 호출 시엔 주입해서 재로딩 방지)
+    if detector is None:
+        detector = DogDetector()
+    if encoder is None:
+        encoder = BreedEncoder()
 
     image = load_image(image_path)
     detections = detector.detect(image)

@@ -6,8 +6,23 @@
 from __future__ import annotations
 
 import argparse
+import sys
 
 from constants import UNKNOWN_MESSAGE
+
+
+def _setup_console_encoding() -> None:
+    """Windows cp949 콘솔에서 한글이 깨지지 않도록 출력을 UTF-8로 바꾼다.
+
+    main.py를 거치지 않고 이 모듈을 직접 import해 써도 안전하도록
+    모듈 로드 시점에 한 번 실행한다 (여러 번 불려도 부작용 없음).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+_setup_console_encoding()
 
 
 def detect(args: argparse.Namespace) -> None:
@@ -62,12 +77,20 @@ def infer(args: argparse.Namespace) -> None:
     print(f"입력: {args.image}")
     print(f"max similarity = {result['max_sim']:.3f} (threshold={args.threshold})")
     if result["unknown"]:
-        print(f"⚠️ Unknown: {UNKNOWN_MESSAGE}")
+        # emoji 대신 [!] 사용 — 구형 콘솔(cp949)에서도 깨지지 않는 ASCII 마커
+        print(f"[!] Unknown: {UNKNOWN_MESSAGE}")
         return
 
     print("Phenotype Similarity Score (DNA 혈통 비율 아님):")
-    for breed, pct in result["topk"]:
-        print(f"  {breed:<25s} {pct:5.1f}%")
+    percent_sum = 0.0
+    for breed, percent in result["topk"]:
+        print(f"  {breed:<25s} {percent:5.1f}%")
+        percent_sum = percent_sum + percent
+
+    # Top-K에 못 든 나머지 견종들의 합 — README 4 예시의 "Other 9%" 역할
+    other_percent = 100.0 - percent_sum
+    if other_percent > 0.05:
+        print(f"  {'Other':<25s} {other_percent:5.1f}%")
 
 
 def evaluate_breed(args: argparse.Namespace) -> None:

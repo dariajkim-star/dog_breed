@@ -77,10 +77,13 @@ data/
 ```text
 dog bbox (xyxy abs)
    ↓ ① 각 변 12~15% expand      ← detector 오차 흡수 + 귀·꼬리·주둥이 보존
-   ↓ ② 이미지 경계 clamp         ← 좌표 음수/초과 버그 방지
-   ↓ ③ 긴 변 기준 square         ← 개를 늘리는 게 아니라 "창"을 넓힘 (체형 왜곡 방지)
-   ↓ ④ 부족분 padding 후 resize  ← 엣지 케이스(개가 사진 가장자리)도 왜곡 0
+   ↓ ② 긴 변 기준 square         ← 개를 늘리는 게 아니라 "창"을 넓힘 (체형 왜곡 방지)
+   ↓ ③ 이미지 경계 clamp         ← 좌표 음수/초과 버그 방지
+   ↓ ④ 부족분 padding 후 resize  ← clamp로 잘린 만큼 회색 padding, 내용물 중앙 배치
 Breed Encoder 입력 (224×224, DINOv2면 14의 배수)
+
+⚠️ 순서 주의: square가 clamp보다 먼저다 (utils/crop.py 실제 구현 기준).
+data/processed 전체가 이 순서로 잘렸으므로 순서 변경 = 데이터 재생성 필수.
 ```
 
 ### 이유 요약
