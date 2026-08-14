@@ -6,3 +6,4 @@ data/labeled/
 data/processed/
 __pycache__/
 *.pt
+data/processed.zip
