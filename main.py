@@ -46,16 +46,23 @@ def cmd_detect(args: argparse.Namespace) -> None:
         print(f"  [{i}] bbox=({x1:.1f}, {y1:.1f}, {x2:.1f}, {y2:.1f})  conf={conf:.3f}")
 
 
-def _iter_split_arrays(split_dir: Path) -> Tuple[List, List[str], List[str]]:
+def _iter_split_arrays(
+    split_dir: Path, cap: int | None = None
+) -> Tuple[List, List[str], List[str]]:
     """split 디렉토리를 순회해 (이미지 리스트, 라벨, 경로 문자열)을 모은다.
 
     processed 데이터는 이미 518px 정사각 crop이므로 detection 불필요
-    (docs/handover.md 기능 2 참조).
+    (docs/handover.md 기능 2 참조). cap 지정 시 클래스당 앞에서부터 cap장만
+    사용 (CPU 테스트 런 용도 — prototype은 어차피 클래스당 ≤50장).
     """
     from preprocessing import load_image, iter_split
 
     imgs, labels, paths = [], [], []
+    per_class: Dict[str, int] = {}
     for path, label in iter_split(split_dir):
+        if cap is not None and per_class.get(label, 0) >= cap:
+            continue
+        per_class[label] = per_class.get(label, 0) + 1
         imgs.append(load_image(path))
         labels.append(label)
         paths.append(str(path))
@@ -69,7 +76,7 @@ def cmd_embed(args: argparse.Namespace) -> None:
 
     split_dir = Path(args.split_dir)
     print(f"split 순회 중: {split_dir}")
-    imgs, labels, paths = _iter_split_arrays(split_dir)
+    imgs, labels, paths = _iter_split_arrays(split_dir, cap=getattr(args, 'cap', None))
     if not imgs:
         raise SystemExit(f"이미지를 찾지 못했습니다: {split_dir}")
     print(f"{len(imgs)}장 로드 완료 — embedding 추출 시작")
@@ -178,7 +185,7 @@ def cmd_eval(args: argparse.Namespace) -> None:
 
     proto = _load_prototypes(args.prototypes)
     split_dir = Path(args.split_dir)
-    imgs, labels, _paths = _iter_split_arrays(split_dir)
+    imgs, labels, _paths = _iter_split_arrays(split_dir, cap=getattr(args, 'cap', None))
     if not imgs:
         raise SystemExit(f"이미지를 찾지 못했습니다: {split_dir}")
     print(f"{len(imgs)}장 평가 시작: {split_dir}")
@@ -233,7 +240,7 @@ def _max_sims_for_dir(split_dir: Path, proto: dict) -> List[float]:
     """디렉토리 이미지들의 25종 prototype 대비 max cosine similarity 목록."""
     from model import BreedEncoder, similarity_scores
 
-    imgs, _labels, _paths = _iter_split_arrays(split_dir)
+    imgs, _labels, _paths = _iter_split_arrays(split_dir, cap=getattr(args, 'cap', None))
     if not imgs:
         raise SystemExit(f"이미지를 찾지 못했습니다: {split_dir}")
     embeddings = BreedEncoder().encode_batch(imgs)
@@ -278,6 +285,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--split-dir", default="data/processed/breed_body/train",
                    help="이미 crop된 split 디렉토리")
     p.add_argument("--out", default="artifacts/embeddings_train.npz", help="출력 npz 경로")
+    p.add_argument("--cap", type=int, default=None,
+                   help="클래스당 최대 장수 (CPU 테스트 런 용도)")
     p.set_defaults(func=cmd_embed)
 
     # prototype
@@ -304,6 +313,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--split-dir", default="data/processed/breed_body/test",
                    help="평가 split 디렉토리 (test는 최종 1회만!)")
     p.add_argument("--prototypes", default="artifacts/prototypes.npz", help="prototype npz")
+    p.add_argument("--cap", type=int, default=None,
+                   help="클래스당 최대 장수 (CPU 테스트 런 용도)")
     p.set_defaults(func=cmd_eval)
 
     # eval-ood
