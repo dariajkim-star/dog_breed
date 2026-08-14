@@ -82,10 +82,6 @@ DINOv2 ViT-S/14 (frozen)
       ↓
 crop → 384-d embedding → L2 정규화
 ✅ frozen feature + prototype만으로 fine-grained 분류가 강력하다는 근거 있음 (SimpleShot 계열)
-✅ 선정 근거: self-supervised(품종 label 미사용) 범용 representation이
-   embedding→prototype similarity 설계에 적합 (hard classifier가 아님)
-⚠️ "DINOv2는 ImageNet 안 봄"은 사실 아님 — LVD-142M에 ImageNet-22k 포함
-   (arxiv.org/abs/2304.07193). leakage-free를 선정 근거로 쓰지 말 것
 
 [개선 실험 트랙 — 이후]
 Tsinghua Dogs + Stanford Dogs (25종)
@@ -94,6 +90,25 @@ ArcFace fine-tune (margin 0.3~0.5, P×K balanced sampler)
       ↓
 breed 전용 embedding space
 ```
+
+### DINOv2 선정 근거
+
+1. **설계 적합성** — 본 과제는 단일 품종 분류가 아니라 외형 특징을 embedding 공간에
+   표현하고 순종 prototype과의 유사도를 계산하는 문제. 특정 label에 최적화된
+   classifier보다 **범용 visual representation을 제공하는 self-supervised 인코더**가 적합
+2. **학습 0회로 fine-grained 분류 가능** — frozen feature + prototype(class 평균)만으로
+   fine-grained 분류가 강력하다는 선행 근거 (SimpleShot 계열)
+3. **Label 누수 없음** — supervised ImageNet 모델과 달리 품종 label을 학습한 적이 없음.
+   단, 이미지 중복 가능성은 모델과 무관하게 존재하므로 **평가는 Tsinghua 고유분(비중복)
+   기준으로 통제** (7. 평가지표 참조)
+
+> **Q. DINOv2도 사전학습에서 평가 이미지를 본 것 아닌가?**
+> A. 맞다 — DINOv2의 LVD-142M에는 ImageNet-22k가 포함되므로(arxiv.org/abs/2304.07193)
+> 이미지 수준 중복 가능성은 ResNet과 동일하게 존재한다. 다만 self-supervised라
+> **품종 label을 본 적은 없고**(label 누수 없음), 이미지 누수는 모델과 무관하게 남기
+> 때문에 **평가 데이터 쪽에서 통제**했다: 모든 튜닝은 val에서만, test는 최종 1회,
+> 공식 수치는 pHash 중복 제거를 거친 Tsinghua 고유분 기준.
+> ⚠️ "DINOv2는 ImageNet을 안 봐서 leakage-free"라는 주장은 사실 오류이므로 금지.
 
 Encoder가 포착하는 견종별 외형 특징:
 얼굴 형태 · 귀 모양 · 주둥이 비율 · 털 색상 · 털 texture · 체형 · 다리 비율 · 꼬리 형태 · 전체 silhouette
