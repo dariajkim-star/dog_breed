@@ -147,7 +147,8 @@ Breed Encoder 입력 (224×224, DINOv2면 14의 배수)
 
 - **Stratified Group Split 70/15/15** — group = dedup 클러스터, stratify = 품종(+소스)
 - test freeze 후 불변. freeze 전 성능 수치는 전부 폐기
-- ⚠️ pHash 발견 반영: Tsinghua도 90%가 Stanford(ImageNet)와 동일 소스 → ImageNet 계열 pretrain 기준 "외부 test"는 **Tsinghua 고유분(비중복)에서 구성**. DINOv2(비-ImageNet)를 main으로 쓰는 이유가 강화됨
+- ⚠️ pHash 발견 반영: Tsinghua도 90%가 Stanford(ImageNet)와 동일 소스 → pretrain 데이터와의 이미지 중복 가능성 때문에 "외부 test"는 **Tsinghua 고유분(비중복)에서 구성**
+- ⚠️ 주의: "DINOv2는 ImageNet을 안 봐서 누수 무관"이라고 주장하지 말 것 — DINOv2 사전학습 데이터 LVD-142M에는 ImageNet-22k 전체(~14.2M장)와 ImageNet 기반 retrieval 이미지가 포함됨 (https://arxiv.org/abs/2304.07193). 이미지 중복 우려는 ResNet과 동일하게 존재. 차이는 self-supervised라 **품종 label을 본 적이 없다**는 것뿐. DINOv2 선정 근거는 leakage-free가 아니라 "label 없이 학습된 범용 visual representation이 embedding/prototype similarity 방식에 적합"으로 잡는다
 
 ## 6. Augmentation (P2 — 후순위, on-the-fly만)
 
