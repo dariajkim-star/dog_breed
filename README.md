@@ -82,6 +82,10 @@ DINOv2 ViT-S/14 (frozen)
       ↓
 crop → 384-d embedding → L2 정규화
 ✅ frozen feature + prototype만으로 fine-grained 분류가 강력하다는 근거 있음 (SimpleShot 계열)
+✅ 선정 근거: self-supervised(품종 label 미사용) 범용 representation이
+   embedding→prototype similarity 설계에 적합 (hard classifier가 아님)
+⚠️ "DINOv2는 ImageNet 안 봄"은 사실 아님 — LVD-142M에 ImageNet-22k 포함
+   (arxiv.org/abs/2304.07193). leakage-free를 선정 근거로 쓰지 말 것
 
 [개선 실험 트랙 — 이후]
 Tsinghua Dogs + Stanford Dogs (25종)
