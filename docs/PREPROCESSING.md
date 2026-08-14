@@ -21,6 +21,19 @@ DINOv2용 resize·정규화는 저장하지 않고 `encode()` 코드 안에서 �
 
 ## 1. 산출물 폴더 구조 (표준)
 
+### 왜 3층인가 — 출처별 → 기능별
+
+```text
+raw/        원본 그대로 (불변)
+labeled/    정규화 계층 — "출처별" 유지. 라벨은 정리됐지만 split 배정 전.
+            출처를 유지하는 이유: cross-dataset dedup 검증, 소스 층화, 문제 역추적
+processed/  최종 학습 계층 — "기능별" (detection / breed). split freeze 후에만 생성.
+            모델은 이 폴더만 본다.
+```
+
+- **최종 학습 폴더는 기능별이 맞다** (기능1: 개 검출 / 기능2: 견종 판별). 단, split이 train/val/test 폴더 구조에 박히기 때문에 **split freeze 전에 기능별로 굳히면 누수 통제 불가** → 그래서 labeled(출처별)를 중간에 둔다
+- 견종 폴더는 불편이 아니라 라벨 그 자체 (PyTorch ImageFolder 표준: 폴더명=클래스). YOLO도 images/ 하위 폴더 공식 허용 (images↔labels 경로 치환 매칭)
+
 ```text
 data/
 ├── raw/                          # 원본 그대로 (불변)
