@@ -40,3 +40,4 @@ venv/
 .DS_Store
 Thumbs.db
 data/BM_dog_pho/
+runs/
