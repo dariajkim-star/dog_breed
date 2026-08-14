@@ -1,0 +1,26 @@
+rank,canonical_breed,total,sources,family,rationale
+1,golden_retriever,5502,2,retriever,최다 수량+믹스 빈출
+2,poodle,3906,2,poodle,3변종 병합. teddy(7449) 병합 시 1만+
+3,labrador_retriever,3750,2,retriever,믹스 빈출(PLOS 주요 구성)
+4,bichon_frise,3081,1,poodle_type,수량 상위. 단일 소스(Tsinghua) 주의
+5,corgi,3449,2,herding,cardigan(3063)+pembroke(386) 병합안 - B와 결정
+6,border_collie,2744,2,herding,
+7,samoyed,2610,3,spitz,3소스 전부 보유
+8,miniature_schnauzer,2495,2,terrier,
+9,pomeranian,2354,3,spitz_toy,3소스
+10,malamute,1502,2,spitz,husky와 fine-grained 난이도 검증쌍
+11,siberian_husky,1352,2,spitz,malamute와 검증쌍
+12,french_bulldog,1280,2,bulldog,
+13,shiba_inu,1243,2,spitz,Oxford+Tsinghua (Stanford 없음)
+14,pug,1198,3,toy,3소스
+15,papillon,1002,2,toy,
+16,miniature_pinscher,945,3,toy,3소스
+17,chihuahua,772,3,toy,믹스 빈출(PLOS 상위)
+18,yorkshire_terrier,704,3,terrier,3소스
+19,beagle,671,3,hound,3소스
+20,basset,616,3,hound,hound 계열 보강. 3소스
+21,shih_tzu,574,2,toy,국내 믹스 빈출
+22,staffordshire_bullterrier,549,3,terrier,PLOS 보호소 최다 계열
+23,maltese_dog,501,2,toy,국내 믹스 빈출
+24,cocker_spaniel,445,2,spaniel,PLOS 주요 구성. english_cocker 병합여부 review
+25,german_shepherd,363,2,herding,PLOS 주요 구성. 최소 수량(363) 주의

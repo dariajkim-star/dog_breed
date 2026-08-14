@@ -1,0 +1,44 @@
+source,original_label,canonical_label,action,note
+oxford,american_bulldog,american_bulldog,pending,Stanford/Tsinghua에 없음 - 25종 미포함 시 DROP
+oxford,american_pit_bull_terrier,american_pit_bull_terrier,pending,AmStaff와 별개 견종 - 병합 금지. 미포함 시 DROP
+oxford,basset_hound,basset,direct,Stanford=basset
+oxford,beagle,beagle,direct,
+oxford,boxer,boxer,direct,
+oxford,chihuahua,chihuahua,direct,Stanford=Chihuahua
+oxford,english_cocker_spaniel,cocker_spaniel,merge_review,Stanford=cocker_spaniel(American) - 육안 확인 후 병합/분리 결정
+oxford,english_setter,english_setter,direct,
+oxford,german_shorthaired,german_shorthaired_pointer,direct,Stanford=German_short-haired_pointer / Tsinghua=German_short_haired_pointer
+oxford,great_pyrenees,great_pyrenees,direct,
+oxford,havanese,havanese,pending,Stanford에 없음 - 미포함 시 DROP
+oxford,japanese_chin,japanese_spaniel,merge,Stanford=Japanese_spaniel (동일 견종 이명)
+oxford,keeshond,keeshond,direct,
+oxford,leonberger,leonberg,merge,Stanford=Leonberg (표기 차이)
+oxford,miniature_pinscher,miniature_pinscher,direct,
+oxford,newfoundland,newfoundland,direct,
+oxford,pomeranian,pomeranian,direct,
+oxford,pug,pug,direct,
+oxford,saint_bernard,saint_bernard,direct,
+oxford,samoyed,samoyed,direct,
+oxford,scottish_terrier,scotch_terrier,merge,Stanford=Scotch_terrier (동일 견종 이명)
+oxford,shiba_inu,shiba_inu,direct,Stanford에 없음 / Tsinghua=Shiba_Dog와 병합
+oxford,staffordshire_bull_terrier,staffordshire_bullterrier,merge,Stanford=Staffordshire_bullterrier
+oxford,wheaten_terrier,soft_coated_wheaten_terrier,merge,Stanford=soft-coated_wheaten_terrier
+oxford,yorkshire_terrier,yorkshire_terrier,direct,
+stanford,toy_poodle,poodle,merge,poodle 사이즈 변종 병합 (crop 후 크기정보 소실)
+stanford,miniature_poodle,poodle,merge,poodle 사이즈 변종 병합
+stanford,standard_poodle,poodle,merge,poodle 사이즈 변종 병합
+tsinghua,miniature_poodle,poodle,merge,poodle 사이즈 변종 병합
+tsinghua,Shiba_Dog,shiba_inu,merge,Oxford=shiba_inu와 통합
+tsinghua,German_short_haired_pointer,german_shorthaired_pointer,merge,표기 통일
+stanford,German_short-haired_pointer,german_shorthaired_pointer,merge,표기 통일
+stanford,curly-coated_retriever,curly_coated_retriever,merge,표기 통일 (하이픈)
+tsinghua,curly_coated_retriever,curly_coated_retriever,direct,
+stanford,flat-coated_retriever,flat_coated_retriever,merge,표기 통일 (하이픈)
+tsinghua,flat_coated_retriever,flat_coated_retriever,direct,
+stanford,Brabancon_griffon,brabancon_griffon,direct,Tsinghua=Brabancon_griffo(오타) 주의
+tsinghua,Brabancon_griffo,brabancon_griffon,merge,Tsinghua 라벨 오타 수정
+tsinghua,teddy,poodle,merge_review,teddy는 견종이 아니라 푸들 미용 스타일(중국 라벨) - 육안 확인 후 poodle 병합 권장 (7449장)
+tsinghua,chinese_rural_dog,DROP,drop,중국 시골 잡종견 - 순종 아님. 학습 제외 (3336장). 필요시 OOD 후보
+tsinghua,Cardigan,corgi,merge_review,pembroke와 corgi 통합 여부 B와 결정 (꼬리 유무 차이)
+stanford,Cardigan,corgi,merge_review,
+stanford,Pembroke,corgi,merge_review,

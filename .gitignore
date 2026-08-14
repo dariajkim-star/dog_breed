@@ -1,0 +1,8 @@
+# 대용량 원본 데이터셋 (14GB+) — git에 넣지 않음
+data/raw/
+doi_10_5061_dryad_g4f4qrfr0__v20220505/GeneticData.zip
+data/raw.zip
+data/labeled/
+data/processed/
+__pycache__/
+*.pt

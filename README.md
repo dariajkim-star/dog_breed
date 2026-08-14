@@ -1,13 +1,14 @@
-#FindDogBreed   
-object detection으로 사진에서 '강아지 이미지'를 잘라 모델에 학습시킨 후, 견종 별 특징을  추출한 뒤 내 강아지가 
+# FindDogBreed
+
+object detection으로 사진에서 '강아지 이미지'를 잘라 모델에 학습시킨 후, 견종 별 특징을 추출한 뒤 내 강아지가
 **어떤 견종의 외형적 특징과 얼마나 유사한지 추정하는 프로젝트**입니다.
 
-> **주의:** 최종 출력값은 이미지에서 관찰된 외형적 특징을 기준으로 계산한 **Phenotype Similarity Score**입니다.
-> 댕댕이로 보는 단계별 예시.txt 꼭 읽어주세요
+> **주의:** 최종 출력값은 실제 DNA 혈통 비율이 아니라, 이미지에서 관찰된 외형적 특징을 기준으로 계산한 **Phenotype Similarity Score**입니다.
+> `docs/댕댕이로 보는 단계별 예시.txt` 꼭 읽어주세요
 
 ---
 
-## 0. Pain Point & 문제정의 (추후 수정)
+## 0. Pain Point & 문제정의
 
 **Pain Point** — 사람도, 보호소 전문가도 믹스견의 품종 구성을 외형으로 잘 맞히지 못한다
 (DNA 대비 최우세 품종 정답률 56.7%, 두 품종 모두 정답 10.4% — Gunter et al. 2018).
@@ -15,6 +16,17 @@ object detection으로 사진에서 '강아지 이미지'를 잘라 모델에 �
 
 **문제정의** — Single-label 분류 문제를 **다중 품종 유사도 추정 문제로 재정의**하고,
 출력이 DNA가 아니라 Phenotype Similarity임을 시스템 설계 자체(출력 명칭, 면책 문구, Unknown 처리)에 박아 넣는다.
+
+---
+
+## 모델 아키텍처 한눈에 보기
+
+![MixedBreed Vision 모델 아키텍처](docs/assets/architecture.svg)
+
+- **딥러닝 모델은 보라색 2개** — ① YOLO11n(개 위치), ② DINOv2(외형→384-d embedding). Day-1은 둘 다 사전학습 그대로, 학습 0회
+- 회색은 모델이 아닌 규칙/계산 — `standard_crop()` 전처리 규칙, cosine similarity 거리 계산
+- **prototype DB**는 별도 모델이 아니라 DINOv2를 재사용해 25종 순종 embedding을 평균 낸 사전 준비물
+- 점선 상자 = MVP 이후 실험 트랙 (YOLO fine-tune, ResNet50/ArcFace) — 구조는 그대로, 보라 박스 내용물만 교체
 
 ---
 
@@ -185,6 +197,12 @@ Cosine Similarity → Calibration → Normalization → Phenotype Similarity Sco
 
 ## 7. 평가지표
 
+![성능 평가 아키텍처](docs/assets/evaluation.svg)
+
+- 기능별로 따로 평가: 견종 판별력(breed test) / 거절 능력(OOD) / 검출력(COCO 외부) — 한 숫자로 뭉치지 않음
+- 믹스견 트랙만 산호색 = **정량 지표 없음** (혼합 비율 GT가 세상에 없으므로 정성 평가만)
+- 맨 아래 점선이 제1규칙: 모든 튜닝은 val에서, **test는 최종 1회** (사람 손에 의한 누수 방지)
+
 | 우선순위 | 지표 | 방법 | 비고 |
 |---|---|---|---|
 | **메인 KPI** | Purebred sanity check | 순종 test 입력 시 해당 품종이 Top-1인 비율 | GT가 확실한 유일한 composition 검증 |
@@ -250,4 +268,5 @@ Breed Prototype (25종)
 Top-K Phenotype Similarity + Unknown 거절
 ```
 
-
+- DNA ancestry prediction, supervised mixed-breed composition regression은 MVP 범위 밖
+- YOLO fine-tune, ArcFace 학습, head crop ablation, calibration(ECE) 고도화는 **실험 트랙**으로 분리

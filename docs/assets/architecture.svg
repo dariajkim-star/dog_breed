@@ -1,0 +1,28 @@
+<svg width="680" viewBox="0 0 680 500" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>MixedBreed Vision 모델 아키텍처</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+<style>
+text{font-family:-apple-system,'Segoe UI','Malgun Gothic',sans-serif}
+.th{font-size:14px;font-weight:600}.t{font-size:14px}.ts{font-size:12px}
+</style></defs>
+<rect x="150" y="40" width="240" height="44" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="270" y="66" text-anchor="middle" fill="#444441">입력 사진 1장</text>
+<line x1="270" y1="84" x2="270" y2="100" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="150" y="100" width="240" height="56" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text class="th" x="270" y="123" text-anchor="middle" fill="#3C3489">딥러닝 ① YOLO11n</text><text class="ts" x="270" y="141" text-anchor="middle" fill="#534AB7">COCO 사전학습 · 개 위치 검출</text>
+<line x1="270" y1="156" x2="270" y2="172" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="150" y="172" width="240" height="56" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="270" y="195" text-anchor="middle" fill="#444441">standard_crop()</text><text class="ts" x="270" y="213" text-anchor="middle" fill="#5F5E5A">모델 아님 · 12~15% expand 규칙</text>
+<line x1="270" y1="228" x2="270" y2="244" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="150" y="244" width="240" height="56" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/><text class="th" x="270" y="267" text-anchor="middle" fill="#3C3489">딥러닝 ② DINOv2 ViT-S/14</text><text class="ts" x="270" y="285" text-anchor="middle" fill="#534AB7">frozen · 384-d embedding</text>
+<line x1="270" y1="300" x2="270" y2="316" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="150" y="316" width="240" height="56" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="th" x="270" y="339" text-anchor="middle" fill="#444441">cosine similarity</text><text class="ts" x="270" y="357" text-anchor="middle" fill="#5F5E5A">모델 아님 · 거리 계산 + 보정</text>
+<rect x="440" y="316" width="200" height="56" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="540" y="339" text-anchor="middle" fill="#085041">25종 prototype DB</text><text class="ts" x="540" y="357" text-anchor="middle" fill="#0F6E56">사전 구축 · 견종별 평균</text>
+<path fill="none" d="M390 272 L540 272 L540 310" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="440" y1="344" x2="396" y2="344" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path fill="none" d="M210 372 L210 388 L185 388 L185 396" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path fill="none" d="M330 372 L330 388 L405 388 L405 396" stroke="#888780" stroke-width="1.5" marker-end="url(#arrow)"/>
+<rect x="90" y="402" width="190" height="56" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="185" y="425" text-anchor="middle" fill="#085041">Top-3 유사도 점수</text><text class="ts" x="185" y="443" text-anchor="middle" fill="#0F6E56">Golden 46% · Poodle 31%…</text>
+<rect x="310" y="402" width="190" height="56" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/><text class="th" x="405" y="425" text-anchor="middle" fill="#085041">Unknown 거절</text><text class="ts" x="405" y="443" text-anchor="middle" fill="#0F6E56">max-sim &lt; threshold</text>
+<rect x="430" y="40" width="210" height="160" rx="4" fill="none" stroke="#B4B2A9" stroke-width="0.5" stroke-dasharray="4 3"/>
+<text class="ts" x="535" y="62" text-anchor="middle" fill="#5F5E5A">실험 트랙 (MVP 이후 학습)</text>
+<rect x="446" y="76" width="178" height="44" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="t" x="535" y="102" text-anchor="middle" fill="#444441">YOLO fine-tune · OIv7</text>
+<rect x="446" y="136" width="178" height="44" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/><text class="t" x="535" y="162" text-anchor="middle" fill="#444441">ResNet50 / ArcFace</text>
+</svg>
