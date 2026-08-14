@@ -7,3 +7,5 @@ data/processed/
 __pycache__/
 *.pt
 data/processed.zip
+data/release/
+data/labeled.zip
