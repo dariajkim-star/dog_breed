@@ -90,12 +90,21 @@ Breed Encoder 입력 (224×224, DINOv2면 14의 배수)
 - 대응: threshold 높게 시작(0.92~0.96) / 품종별 분포 확인(흰 개 품종 더 엄격) / **거대 그룹 경보**(한 그룹 수십 장 = threshold 뚫림 신호) / ③단계는 육안 필수
 - **비대칭 원칙: 놓침(누수) >> 과다 묶음(낭비)** — 애매하면 묶는다
 
-### 처리: 삭제가 아니라 그룹핑
-- `dedup_group=DG_xxxx` 부여 → split은 그룹 단위 (그룹 통째로 train 또는 test) → 누수 원천 차단
+### 처리 2단계 (8/14 확정)
+
+**1) 확정 중복(exact duplicate)은 keep-one 제거** — 사용자 결정
+- 기준: MD5 동일 OR pHash Hamming ≤ 5 ("파일명만 다른 같은 사진")
+- 정책: 그룹당 1장만 유지. **유지 우선순위 = 전체 데이터가 적은 소스** (oxford 7,390 > stanford 20,580 > tsinghua 70,432)
+- raw 원본은 삭제하지 않음 — manifest에 `usable=False, exclusion_reason='exact_duplicate', dup_keep_id` 기록, `data/labeled/`에서만 탈락본(이미지+라벨) 제거
+- **실행 결과 (8/14)**: 중복 그룹 19,053개, 제외 19,442장 (tsinghua 19,158 / stanford 208 / oxford 76) → usable 76,585장
+
+**2) 애매 구간은 그룹핑 → group split** — Hamming 6~10 및 embedding 단계(0.92~0.96) 후보는 제거하지 않고 `dedup_group=DG_xxxx` 부여, split에서 그룹 통째로 같은 쪽 배치
 
 ### 현재 산출물
 - `data/manifests/phash.parquet` (98,385장, 실패 0)
 - `data/manifests/phash_pairs.parquet` (≤10: 25,205쌍 — ≤5: 19,949 / 6~8: 1,002 / 9~10: 4,254 / cross-dataset 20,839)
+- `data/reports/exact_dedup_report.md` (keep-one 실행 리포트)
+- master_manifest.parquet 갱신 (exact_duplicate 반영)
 
 ---
 
