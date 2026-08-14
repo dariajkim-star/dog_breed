@@ -1,0 +1,38 @@
+# ── 대용량 데이터 (폴더 단위로 제외) ───────────────────────────
+# 확장자가 아니라 폴더로 막는 이유: Stanford annotation 파일은
+# 확장자가 없어서 *.xml / *.txt 같은 규칙에 걸리지 않음
+dog_breed_dataset/
+processed/
+
+# main 브랜치 정책과 동일 (경로가 data/ 아래인 경우)
+data/raw/
+data/labeled/
+data/processed/
+data/release/
+data/raw.zip
+data/labeled.zip
+data/processed.zip
+
+# ── 딥러닝 산출물 ──────────────────────────────────────────
+*.pt
+*.pth
+*.onnx
+*.npy
+*.npz
+*.pkl
+runs/
+wandb/
+checkpoints/
+lightning_logs/
+
+# ── 파이썬 ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.env
+
+# ── 기타 ──────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
