@@ -7,6 +7,7 @@
 - 고양이(__CAT_OOD__): 학습 안 하므로 val/test 50:50
 - 출력: manifest에 dedup_group/split 컬럼, train/val/test.parquet, split_report
 """
+import hashlib
 import random
 from collections import defaultdict
 from pathlib import Path
@@ -34,6 +35,11 @@ class DSU:
             self.p[rb] = ra
 
 
+def _gid(image_id: str) -> str:
+    """결정적 그룹 ID — 실행할 때마다 같은 값이 나온다."""
+    return hashlib.md5(image_id.encode("utf-8")).hexdigest()[:8]
+
+
 def main():
     random.seed(42)
     mpath = ROOT / "data" / "manifests" / "master_manifest.parquet"
@@ -44,7 +50,10 @@ def main():
     for r in pairs.itertuples():          # <=10 전체 (보수적)
         dsu.union(r.id_a, r.id_b)
 
-    df["dedup_group"] = [f"DG_{hash(dsu.find(i)) & 0xFFFFFFFF:08x}" if i in dsu.p
+    # 주의: 파이썬 내장 hash()는 문자열에 대해 프로세스마다 값이 달라진다(해시 무작위화).
+    # 그러면 groupby("dedup_group")의 정렬 순서가 실행마다 바뀌어 random_state=42를 줘도
+    # split 배정이 재현되지 않는다 -> SPLIT FREEZE가 풀린다. md5로 결정적 ID를 쓴다.
+    df["dedup_group"] = [f"DG_{_gid(dsu.find(i))}" if i in dsu.p
                          else f"SG_{k}" for k, i in enumerate(df.image_id)]
 
     # ---- 25종 split (group 단위, 품종별 greedy) ----
