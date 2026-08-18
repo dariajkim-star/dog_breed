@@ -20,6 +20,7 @@ def evaluate_split(
     cap: Optional[int] = None,
     *,
     encoder=None,
+    batch_size: int = 32,
 ) -> Dict[str, float]:
     """Top-1/Top-3 accuracy + purebred sanity check.
 
@@ -40,7 +41,7 @@ def evaluate_split(
 
     if encoder is None:
         encoder = BreedEncoder()
-    embeddings = encoder.encode_batch(images)
+    embeddings = encoder.encode_batch(images, batch_size=batch_size)
 
     top1_hit = 0
     top3_hit = 0
@@ -136,6 +137,7 @@ def max_sims_for_dir(
     cap: Optional[int] = None,
     *,
     encoder=None,
+    batch_size: int = 32,
 ) -> List[float]:
     """디렉터리의 각 이미지가 prototype들과 얼마나 닮았는지, 최고 유사도만 모은다."""
     from encoder import BreedEncoder
@@ -147,7 +149,7 @@ def max_sims_for_dir(
 
     if encoder is None:
         encoder = BreedEncoder()
-    embeddings = encoder.encode_batch(images)
+    embeddings = encoder.encode_batch(images, batch_size=batch_size)
 
     max_similarities: List[float] = []
     for embedding in embeddings:
@@ -164,6 +166,7 @@ def evaluate_ood(
     cap: Optional[int] = None,
     *,
     encoder=None,
+    batch_size: int = 32,
 ) -> Dict[str, float]:
     """개(in-distribution) vs 고양이(OOD)의 max-similarity 분포로 AUROC 계산.
 
@@ -176,8 +179,12 @@ def evaluate_ood(
     # 개/고양이 평가에 같은 encoder를 재사용 — 모델을 두 번 로드하지 않는다
     if encoder is None:
         encoder = BreedEncoder()
-    dog_sims = max_sims_for_dir(dog_dir, prototype_data, cap=cap, encoder=encoder)
-    cat_sims = max_sims_for_dir(cat_dir, prototype_data, cap=cap, encoder=encoder)
+    dog_sims = max_sims_for_dir(
+        dog_dir, prototype_data, cap=cap, encoder=encoder, batch_size=batch_size
+    )
+    cat_sims = max_sims_for_dir(
+        cat_dir, prototype_data, cap=cap, encoder=encoder, batch_size=batch_size
+    )
 
     return {
         "n_dog": len(dog_sims),

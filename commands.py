@@ -99,7 +99,9 @@ def evaluate_breed(args: argparse.Namespace) -> None:
     from evaluate import evaluate_split
 
     print(f"평가 시작: {args.split_dir}")
-    result = evaluate_split(args.split_dir, args.prototypes, cap=args.cap)
+    result = evaluate_split(
+        args.split_dir, args.prototypes, cap=args.cap, batch_size=args.batch_size
+    )
     print("=== 평가 결과 (README 7. 평가지표) ===")
     print(
         f"Top-1 accuracy            : {result['top1']:.4f}  "
@@ -121,6 +123,7 @@ def evaluate_ood(args: argparse.Namespace) -> None:
         args.cat_dir,
         args.prototypes,
         cap=args.cap,
+        batch_size=args.batch_size,
     )
     print("=== OOD 평가 결과 (README 7. 평가지표) ===")
     print(f"개 {result['n_dog']}장 / 고양이 {result['n_cat']}장")

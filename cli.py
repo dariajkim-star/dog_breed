@@ -127,6 +127,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="artifacts/prototypes.npz",
         help="prototype npz",
     )
+    eval_parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=32,
+        help="encoder 배치 크기 (VRAM이 작으면 8~16으로 낮출 것)",
+    )
     _add_cap(eval_parser)
     eval_parser.set_defaults(func=evaluate_breed)
 
@@ -149,6 +155,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--prototypes",
         default="artifacts/prototypes.npz",
         help="prototype npz",
+    )
+    ood_parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=32,
+        help="encoder 배치 크기 (VRAM이 작으면 8~16으로 낮출 것)",
     )
     _add_cap(ood_parser)
     ood_parser.set_defaults(func=evaluate_ood)
