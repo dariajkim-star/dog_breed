@@ -98,7 +98,8 @@ def main():
     tab["train%"] = (tab.get("train", 0) / tab.total * 100).round(1)
     lines = ["# Split Report (FREEZE)", "",
              f"- 그룹핑: pHash <=10 전체 연결 (embedding dedup은 개선 트랙)",
-             f"- 25종 이미지: {int(df.in_mvp25.sum()):,} / 고양이 OOD: {int(cat_mask.sum()):,} (val/test 반반)",
+             f"- 견종 {int(df[df.in_mvp25].canonical_breed.nunique())}종 / 이미지 {int(df.in_mvp25.sum()):,}"
+             f" / 고양이 OOD: {int(cat_mask.sum()):,} (val/test 반반)",
              "", tab.to_markdown()]
     (ROOT / "data" / "reports" / "split_report.md").write_text("\n".join(lines), encoding="utf-8")
     print(tab.to_string())

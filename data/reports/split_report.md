@@ -1,7 +1,7 @@
 # Split Report (FREEZE)
 
 - 그룹핑: pHash <=10 전체 연결 (embedding dedup은 개선 트랙)
-- 25종 이미지: 72,547 / 고양이 OOD: 2,400 (val/test 반반)
+- 견종 126종 / 이미지 72,547 / 고양이 OOD: 2,400 (val/test 반반)
 
 | canonical_breed                |   test |   train |   val |   total |   train% |
 |:-------------------------------|-------:|--------:|------:|--------:|---------:|
