@@ -30,8 +30,8 @@ def build_parser() -> argparse.ArgumentParser:
     detect_parser.add_argument("--image", required=True, help="입력 이미지 경로")
     detect_parser.add_argument(
         "--weights",
-        default="yolo11n.pt",
-        help="YOLO 가중치",
+        default="yolo11s.pt",
+        help="YOLO 가중치 (기본 11s — 11n은 검출 0건이 20.3%%로 더 많이 놓친다)",
     )
     detect_parser.add_argument(
         "--conf",

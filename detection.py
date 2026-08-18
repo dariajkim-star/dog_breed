@@ -24,7 +24,13 @@ class DogDetector:
 
     DOG_CLASS_ID: int = 16  # COCO 클래스 번호 16 = 'dog'
 
-    def __init__(self, weights: str = "yolo11n.pt", conf: float = 0.25) -> None:
+    # 기본 가중치를 11n -> 11s로 올린 이유 (test = COCO val2017 dog 177장 실측):
+    #   검출 0건  11n 20.34% -> 11s 14.12%   (답을 아예 못 내는 사진이 30% 감소)
+    #   속도      27.5 -> 23.0 img/s          (사진 한 장씩 처리라 체감 없음)
+    #   recall    0.7156 -> 0.7890
+    # precision은 둘 다 0.91로 같다 — 모델을 키워 얻는 건 전부 recall이고,
+    # 이 파이프라인은 못 찾으면 뒷단계가 아예 못 도므로 recall이 중요하다.
+    def __init__(self, weights: str = "yolo11s.pt", conf: float = 0.25) -> None:
         from ultralytics import YOLO
 
         self.model = YOLO(weights)

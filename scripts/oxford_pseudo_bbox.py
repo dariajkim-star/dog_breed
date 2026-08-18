@@ -25,6 +25,9 @@ def main():
     ox = df[(df.source == "oxford") & df.usable]
     print(f"oxford dog images: {len(ox)}")
 
+    # 여기는 일부러 11n으로 고정한다. oxford_pseudo_bbox.parquet에 이미 들어간
+    # bbox가 11n으로 만들어진 값이라, 모델을 바꾸면 재실행 시 기존 manifest와
+    # 다른 결과가 나와 데이터 재현성이 깨진다. (추론 기본값은 11s로 올렸다 — detection.py 참조)
     model = YOLO("yolo11n.pt")
     rows = []
     paths = [str(ROOT / p) for p in ox.image_path]
