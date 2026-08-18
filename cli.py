@@ -55,6 +55,12 @@ def build_parser() -> argparse.ArgumentParser:
         default="artifacts/embeddings_train.npz",
         help="출력 npz 경로",
     )
+    embed_parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=32,
+        help="encoder 배치 크기 (VRAM이 작으면 8~16으로 낮출 것)",
+    )
     _add_cap(embed_parser)
     embed_parser.set_defaults(func=embed)
 

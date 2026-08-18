@@ -42,8 +42,13 @@ def embed_split(
     split_dir: Path | str,
     out: Path | str,
     cap: Optional[int] = None,
+    batch_size: int = 32,
 ) -> Tuple[int, tuple]:
-    """Stage 2 실행: crop 완료 split → embedding npz."""
+    """Stage 2 실행: crop 완료 split → embedding npz.
+
+    batch_size는 VRAM에 맞춰 조절한다. 518px 입력에서는 배치가 커지면
+    attention 행렬이 급격히 커지므로, VRAM이 작은 GPU에서는 8~16이 안전하다.
+    """
     import numpy as np
 
     from encoder import BreedEncoder
@@ -52,7 +57,9 @@ def embed_split(
     if not images:
         raise FileNotFoundError(f"이미지를 찾지 못했습니다: {split_dir}")
 
-    embeddings = np.asarray(BreedEncoder().encode_batch(images))
+    embeddings = np.asarray(
+        BreedEncoder().encode_batch(images, batch_size=batch_size)
+    )
 
     out = Path(out)
     out.parent.mkdir(parents=True, exist_ok=True)

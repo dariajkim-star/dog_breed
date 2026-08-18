@@ -49,7 +49,9 @@ def embed(args: argparse.Namespace) -> None:
     from pipeline import embed_split
 
     print(f"split 순회 중: {args.split_dir}")
-    n, shape = embed_split(args.split_dir, args.out, cap=args.cap)
+    n, shape = embed_split(
+        args.split_dir, args.out, cap=args.cap, batch_size=args.batch_size
+    )
     print(f"저장 완료: {args.out}  ({n}장, embeddings={shape})")
 
 
