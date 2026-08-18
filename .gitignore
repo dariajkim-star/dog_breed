@@ -41,3 +41,6 @@ venv/
 Thumbs.db
 data/BM_dog_pho/
 runs/
+
+# 개인 사진 (public 저장소 유출 방지 — data/BM_dog_pho와 동일 취지)
+my_photos/

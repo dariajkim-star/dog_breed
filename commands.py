@@ -84,9 +84,13 @@ def infer(args: argparse.Namespace) -> None:
         print("[i] detection 0건 → 사진 전체를 crop해 추론했습니다 (--fallback-full-image)")
     print(f"max similarity = {result['max_sim']:.3f} (threshold={args.threshold})")
     if result["unknown"]:
+        # threshold는 순종 val 분포로 잡혀 있어 믹스견은 구조적으로 이 선 아래에
+        # 떨어진다. 여기서 그냥 끊으면 정작 주 대상인 믹스견에게 아무 정보도 못 준다.
+        # 거절 문구는 그대로 두되, 순위는 '참고용'으로 함께 보여준다.
         # emoji 대신 [!] 사용 — 구형 콘솔(cp949)에서도 깨지지 않는 ASCII 마커
-        print(f"[!] Unknown: {UNKNOWN_MESSAGE}")
-        return
+        print(f"[!] {UNKNOWN_MESSAGE}")
+        print("    순종 중 뚜렷하게 닮은 견종이 없습니다 — 믹스견일 가능성이 높습니다.")
+        print("    아래 순위는 참고용이며 확신도가 낮습니다.")
 
     print("Phenotype Similarity Score (DNA 혈통 비율 아님):")
     percent_sum = 0.0

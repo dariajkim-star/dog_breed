@@ -66,9 +66,15 @@ def predict(
         return {"unknown": True, "max_sim": float("-inf"), "topk": []}
     max_sim = float(values.max())
 
-    # Unknown/OOD 분기 (README 4 필수) — 가장 닮은 견종조차 threshold 미만이면 거절
-    if max_sim < threshold:
-        return {"unknown": True, "max_sim": max_sim, "topk": []}
+    # Unknown/OOD 분기 (README 4 필수) — 가장 닮은 견종조차 threshold 미만이면 거절.
+    # 단, 순위 계산은 그대로 진행해 topk를 함께 돌려준다.
+    #
+    # threshold는 순종 val 분포로 잡혀 있어(순종 95%가 통과하는 지점) 믹스견은
+    # 구조적으로 이 선 아래에 떨어진다 — 순종 prototype과 원래 덜 닮기 때문이다.
+    # 여기서 topk를 비워 버리면 정작 이 프로젝트의 주 대상인 믹스견에게
+    # 아무 정보도 못 주게 된다. 거절 여부(unknown)와 순위(topk)를 분리해서
+    # 표시 방법은 호출부가 정하도록 한다.
+    unknown = max_sim < threshold
 
     # temperature softmax (README 5 calibration)
     logits = values / temperature
@@ -84,4 +90,4 @@ def predict(
         percent = float(probabilities[index] * 100.0)
         topk.append((breed, percent))
 
-    return {"unknown": False, "max_sim": max_sim, "topk": topk}
+    return {"unknown": unknown, "max_sim": max_sim, "topk": topk}
