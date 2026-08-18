@@ -97,8 +97,62 @@ def average_precision(confs: np.ndarray, is_tp: np.ndarray, n_gt: int) -> float:
     return float(out.mean())
 
 
-def main() -> None:
+def make_yolo_predictor(weights: str, imgsz: int):
+    """ultralytics 모델 → (경로) -> (xyxy(N,4), conf(N,)) 함수."""
     from ultralytics import YOLO
+
+    model = YOLO(weights)
+    # 모델의 names에서 dog를 이름으로 찾는다. COCO 80종은 16번이지만
+    # 단일 클래스로 fine-tune한 모델은 0번이라 하드코딩하면 안 된다.
+    dog_id = next((i for i, n in model.names.items() if n == "dog"), 0)
+    print(f"  dog 클래스 번호: {dog_id} ({model.names[dog_id]})")
+
+    def predict(path: Path):
+        res = model.predict(source=str(path), conf=0.001, classes=[dog_id],
+                            imgsz=imgsz, verbose=False)[0]
+        if res.boxes is None or len(res.boxes) == 0:
+            return np.zeros((0, 4), np.float32), np.zeros((0,), np.float32)
+        return res.boxes.xyxy.cpu().numpy(), res.boxes.conf.cpu().numpy()
+
+    return predict
+
+
+def make_fasterrcnn_predictor():
+    """torchvision Faster R-CNN R50-FPN → 같은 형태의 함수.
+
+    주의: torchvision은 COCO를 91클래스 체계로 쓴다. dog는 18번이고
+    16번은 bird다. YOLO 감각으로 16을 쓰면 새를 세게 된다.
+    입력 해상도도 다르다 — torchvision 기본은 min 800 / max 1333,
+    YOLO는 640. 각 모델의 표준 설정을 그대로 쓰는 것이 공정한 비교다.
+    """
+    import torch
+    from torchvision.models.detection import (
+        FasterRCNN_ResNet50_FPN_V2_Weights, fasterrcnn_resnet50_fpn_v2)
+
+    weights = FasterRCNN_ResNet50_FPN_V2_Weights.COCO_V1
+    dog_id = weights.meta["categories"].index("dog")
+    print(f"  dog 클래스 번호: {dog_id} ({weights.meta['categories'][dog_id]})")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = fasterrcnn_resnet50_fpn_v2(weights=weights, box_score_thresh=0.001)
+    model.eval().to(device)
+    preprocess = weights.transforms()
+
+    def predict(path: Path):
+        from PIL import Image
+        with Image.open(path) as im:
+            tensor = preprocess(im.convert("RGB")).to(device)
+        with torch.no_grad():
+            out = model([tensor])[0]
+        keep = out["labels"] == dog_id
+        boxes = out["boxes"][keep].cpu().numpy().astype(np.float32)
+        scores = out["scores"][keep].cpu().numpy().astype(np.float32)
+        return boxes, scores
+
+    return predict
+
+
+def main() -> None:
     from PIL import Image
 
     args = parse_args()
@@ -112,10 +166,11 @@ def main() -> None:
         images = images[: args.limit]
     print(f"모델: {args.model} | split: {args.split} | 이미지 {len(images):,}장")
 
-    model = YOLO(args.model)
-    # COCO 사전학습 모델은 dog가 16번. 단일 클래스로 학습한 모델이면 0번.
-    dog_id = next((i for i, n in model.names.items() if n == "dog"), 0)
-    print(f"이 모델의 dog 클래스 번호: {dog_id} ({model.names[dog_id]})\n")
+    if args.model.startswith("fasterrcnn"):
+        predict = make_fasterrcnn_predictor()
+    else:
+        predict = make_yolo_predictor(args.model, args.imgsz)
+    print()
 
     # mAP는 낮은 conf까지 훑어야 PR 곡선이 완성된다 (표준 관행)
     all_conf: list[float] = []
@@ -132,18 +187,11 @@ def main() -> None:
     # 한 장씩 넣으면 VRAM 최대 0.20GB로 모든 모델이 같은 조건에서 돌고,
     # 실측상 오히려 더 빠르다(yolo11m 177장: 리스트 방식 OOM -> 한 장씩 12.6초).
     for img_path in images:
-        res = model.predict(source=str(img_path), conf=0.001, classes=[dog_id],
-                            imgsz=args.imgsz, verbose=False)[0]
+        pred, conf = predict(img_path)
         with Image.open(img_path) as im:
             width, height = im.size
         gt = load_gt(lbl_dir / (img_path.stem + ".txt"), width, height)
         n_gt_total += len(gt)
-
-        if res.boxes is None or len(res.boxes) == 0:
-            pred, conf = np.zeros((0, 4), np.float32), np.zeros((0,), np.float32)
-        else:
-            pred = res.boxes.xyxy.cpu().numpy()
-            conf = res.boxes.conf.cpu().numpy()
 
         order = np.argsort(-conf)
         pred, conf = pred[order], conf[order]
