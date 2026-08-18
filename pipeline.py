@@ -137,10 +137,21 @@ def embed_single_image(
     *,
     detector=None,
     encoder=None,
+    fallback_full_image: bool = False,
 ):
     """Inference 앞단: detect → standard crop → encode.
 
     detector/encoder 주입을 허용해 반복 추론 시 모델을 매번 다시 로드하지 않게 한다.
+
+    fallback_full_image: 검출 0건일 때 사진 전체를 bbox로 삼아 진행한다.
+        YOLO는 COCO의 '개 전신'으로 학습돼 얼굴 클로즈업을 자주 놓친다
+        (test 표본 300장 측정 결과 15%가 검출 0건). 사용자가 직접 찍는 사진은
+        클로즈업 비중이 높아 그대로 두면 답을 아예 못 내는 경우가 많다.
+        개가 없는 사진이면 전체 이미지 embedding이 어느 prototype과도 맞지 않아
+        max_sim이 낮게 나오므로, 거절 판단은 scoring의 threshold가 맡는다.
+
+    Returns:
+        (embedding, used_fallback) 또는 검출 실패 & fallback 비활성 시 None.
     """
     from detection import DogDetector
     from encoder import BreedEncoder
@@ -154,12 +165,20 @@ def embed_single_image(
 
     image = load_image(image_path)
     detections = detector.detect(image)
-    if not detections:
+
+    used_fallback = False
+    if detections:
+        bbox, _confidence = detections[0]  # detect()가 confidence 내림차순 보장
+    elif fallback_full_image:
+        # 사진 전체를 bbox로 — standard_crop이 정사각 보정과 padding을 알아서 한다
+        height, width = image.shape[:2]
+        bbox = (0.0, 0.0, float(width), float(height))
+        used_fallback = True
+    else:
         return None
 
-    bbox, _confidence = detections[0]  # detect()가 confidence 내림차순 보장
     crop = crop_dog(image, bbox)
-    return encoder.encode(crop)
+    return encoder.encode(crop), used_fallback
 
 
 def infer_image(
@@ -171,23 +190,32 @@ def infer_image(
     *,
     detector=None,
     encoder=None,
+    fallback_full_image: bool = False,
 ) -> Optional[dict]:
-    """단일 이미지 전체 inference orchestration."""
+    """단일 이미지 전체 inference orchestration.
+
+    결과 dict에 fallback 키를 넣어, 답이 '검출된 개'가 아니라 '사진 전체'에서
+    나온 것인지 호출부가 구분할 수 있게 한다.
+    """
     from scoring import predict
 
-    embedding = embed_single_image(
+    result = embed_single_image(
         image_path,
         detector=detector,
         encoder=encoder,
+        fallback_full_image=fallback_full_image,
     )
-    if embedding is None:
+    if result is None:
         return None
+    embedding, used_fallback = result
 
     prototypes = load_prototypes(prototypes_path)
-    return predict(
+    prediction = predict(
         embedding,
         prototypes,
         threshold=threshold,
         top_k=top_k,
         temperature=temperature,
     )
+    prediction["fallback"] = used_fallback
+    return prediction

@@ -71,12 +71,17 @@ def infer(args: argparse.Namespace) -> None:
         threshold=args.threshold,
         top_k=args.top_k,
         temperature=args.temperature,
+        fallback_full_image=args.fallback_full_image,
     )
     if result is None:
         print("강아지를 찾지 못했습니다. (detection 0건)")
+        print("  힌트: 얼굴 클로즈업이면 --fallback-full-image 로 사진 전체를 쓸 수 있습니다.")
         return
 
     print(f"입력: {args.image}")
+    if result["fallback"]:
+        # 어디서 나온 답인지 밝힌다 — 검출된 개가 아니라 사진 전체 기준이다
+        print("[i] detection 0건 → 사진 전체를 crop해 추론했습니다 (--fallback-full-image)")
     print(f"max similarity = {result['max_sim']:.3f} (threshold={args.threshold})")
     if result["unknown"]:
         # emoji 대신 [!] 사용 — 구형 콘솔(cp949)에서도 깨지지 않는 ASCII 마커

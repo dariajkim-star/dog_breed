@@ -109,6 +109,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=0.1,
         help="temperature scaling 값",
     )
+    infer_parser.add_argument(
+        "--fallback-full-image",
+        action="store_true",
+        help="detection 0건일 때 사진 전체를 crop해 추론 "
+             "(얼굴 클로즈업 대응 — YOLO는 개 전신 위주로 학습돼 클로즈업을 놓친다)",
+    )
     infer_parser.set_defaults(func=infer)
 
     eval_parser = sub.add_parser(
