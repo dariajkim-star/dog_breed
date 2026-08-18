@@ -125,11 +125,15 @@ def main() -> None:
     n_tp25 = n_fp25 = 0   # 실용 지표용
     t0 = time.time()
 
-    results = model.predict(source=[str(p) for p in images], conf=0.001,
-                            classes=[dog_id], imgsz=args.imgsz,
-                            stream=True, verbose=False)
-
-    for img_path, res in zip(images, results):
+    # 한 장씩 넣는다. source에 리스트를 주면 ultralytics가 배치를 임의로 묶는데,
+    # predict()의 batch 인자로는 그게 통제되지 않는다(무시됨). 그 결과
+    #   - 모델마다 실제 배치가 달라져 속도 비교가 불공정해지고
+    #   - VRAM 4GB에서 yolo11m이 3.24GiB 단일 할당을 시도하다 OOM으로 죽었다.
+    # 한 장씩 넣으면 VRAM 최대 0.20GB로 모든 모델이 같은 조건에서 돌고,
+    # 실측상 오히려 더 빠르다(yolo11m 177장: 리스트 방식 OOM -> 한 장씩 12.6초).
+    for img_path in images:
+        res = model.predict(source=str(img_path), conf=0.001, classes=[dog_id],
+                            imgsz=args.imgsz, verbose=False)[0]
         with Image.open(img_path) as im:
             width, height = im.size
         gt = load_gt(lbl_dir / (img_path.stem + ".txt"), width, height)
