@@ -162,6 +162,13 @@ def build_parser() -> argparse.ArgumentParser:
         default=32,
         help="encoder 배치 크기 (VRAM이 작으면 8~16으로 낮출 것)",
     )
+    ood_parser.add_argument(
+        "--cat-cap",
+        type=int,
+        default=None,
+        help="고양이 쪽만 별도 cap (미지정 시 --cap과 동일). "
+             "고양이는 클래스가 1개뿐이라 --cap을 그대로 쓰면 표본이 126배 적어진다",
+    )
     _add_cap(ood_parser)
     ood_parser.set_defaults(func=evaluate_ood)
 

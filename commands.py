@@ -123,6 +123,7 @@ def evaluate_ood(args: argparse.Namespace) -> None:
         args.cat_dir,
         args.prototypes,
         cap=args.cap,
+        cat_cap=args.cat_cap,
         batch_size=args.batch_size,
     )
     print("=== OOD 평가 결과 (README 7. 평가지표) ===")

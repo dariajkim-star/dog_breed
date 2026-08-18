@@ -165,13 +165,23 @@ def evaluate_ood(
     prototypes_path: Path | str,
     cap: Optional[int] = None,
     *,
+    cat_cap: Optional[int] = None,
     encoder=None,
     batch_size: int = 32,
 ) -> Dict[str, float]:
     """개(in-distribution) vs 고양이(OOD)의 max-similarity 분포로 AUROC 계산.
 
     encoder를 넘기면 DINOv2를 다시 로드하지 않는다.
+
+    cap은 '클래스(하위 폴더)당' 장수라서 두 디렉터리에서 의미가 달라진다:
+    개 쪽은 견종 폴더가 126개지만 고양이 쪽은 cat 폴더 하나뿐이라, 같은 cap을
+    주면 표본이 126배 차이 난다(예: cap=30 -> 개 3,778장 vs 고양이 30장).
+    고양이 표본이 적으면 AUROC가 표본 운에 휘둘리고 threshold를 정할 때
+    필요한 '고양이 점수 분포의 위쪽 꼬리'가 보이지 않는다.
+    cat_cap으로 고양이 쪽만 따로 지정한다 (미지정 시 cap과 동일).
     """
+    if cat_cap is None:
+        cat_cap = cap
     from encoder import BreedEncoder
 
     prototype_data = load_prototypes(prototypes_path)
@@ -183,7 +193,7 @@ def evaluate_ood(
         dog_dir, prototype_data, cap=cap, encoder=encoder, batch_size=batch_size
     )
     cat_sims = max_sims_for_dir(
-        cat_dir, prototype_data, cap=cap, encoder=encoder, batch_size=batch_size
+        cat_dir, prototype_data, cap=cat_cap, encoder=encoder, batch_size=batch_size
     )
 
     return {
