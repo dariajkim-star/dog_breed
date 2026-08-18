@@ -22,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog="main.py",
-        description="FindDogBreed 파이프라인 — 단계별 실행",
+        description="FindDogBreed 파이프라인 - 단계별 실행",
     )
     sub = parser.add_subparsers(dest="command", required=True)
 
@@ -109,10 +109,12 @@ def build_parser() -> argparse.ArgumentParser:
         "eval",
         help="Top-1/Top-3 + 순종 sanity check",
     )
+    # 기본값은 val — "모든 튜닝은 val, test는 최종 1회" (README 7 제1규칙).
+    # test 평가는 마지막에 딱 한 번, --split-dir로 명시해서 실행한다.
     eval_parser.add_argument(
         "--split-dir",
-        default="data/processed/breed_body/test",
-        help="평가 split 디렉터리",
+        default="data/processed/breed_body/val",
+        help="평가 split 디렉터리 (기본 val — test는 최종 1회만 명시 실행)",
     )
     eval_parser.add_argument(
         "--prototypes",
@@ -126,15 +128,16 @@ def build_parser() -> argparse.ArgumentParser:
         "eval-ood",
         help="개 vs 고양이 max-sim AUROC",
     )
+    # 기본값은 val — OOD threshold 튜닝은 val에서 하고, test는 최종 1회만 (README 7)
     ood_parser.add_argument(
         "--dog-dir",
-        default="data/processed/breed_body/test",
-        help="in-distribution 개 이미지 디렉터리",
+        default="data/processed/breed_body/val",
+        help="in-distribution 개 이미지 디렉터리 (기본 val)",
     )
     ood_parser.add_argument(
         "--cat-dir",
-        default="data/processed/ood/test",
-        help="OOD 고양이 이미지 디렉터리",
+        default="data/processed/ood/val",
+        help="OOD 고양이 이미지 디렉터리 (기본 val)",
     )
     ood_parser.add_argument(
         "--prototypes",

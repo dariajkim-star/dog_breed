@@ -29,6 +29,14 @@ object detection으로 사진에서 '강아지 이미지'를 잘라 모델에 �
 - **prototype DB**는 별도 모델이 아니라 DINOv2를 재사용해 25종 순종 embedding을 평균 낸 사전 준비물
 - 점선 상자 = MVP 이후 실험 트랙 (YOLO fine-tune, ResNet50/ArcFace) — 구조는 그대로, 보라 박스 내용물만 교체
 
+## 코드 아키텍처 한눈에 보기
+
+![코드 아키텍처](docs/assets/code_architecture.svg)
+
+- 통제 방향은 위→아래: main은 시작 버튼, cli가 명령을 정의, commands가 아래층에 일을 시킴
+- 산호색 단계 모듈 5개는 서로를 모름 — 조합은 pipeline이 담당 (한 단계 교체해도 다른 단계 안 깨짐)
+- 모듈별 책임과 원칙은 [ARCHITECTURE.md](ARCHITECTURE.md) 참조
+
 ---
 
 ## 1. Stage 1 — Dog Detection
@@ -61,10 +69,12 @@ YOLO는 견종을 구분하지 않습니다. 배우는 것은 오직:
 
 ```text
 dog bbox
-   ↓ 각 변 12~15% expand (이미지 경계 clamp)
-   ↓ 긴 변 기준 square
+   ↓ 각 변 12~15% expand
+   ↓ 긴 변 기준 square (창 확장, 중심 고정)
+   ↓ 이미지 경계 clamp → 잘린 만큼 회색 padding (내용물 중앙 배치)
    ↓ resize
 Breed Encoder 입력
+※ 순서는 utils/crop.py의 standard_crop() 구현이 기준 (square가 clamp보다 먼저)
 ```
 
 ⚠️ 이 규칙은 **Prototype 구축 시와 Inference 시에 반드시 동일하게** 적용합니다.

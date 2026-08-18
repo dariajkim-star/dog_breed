@@ -39,3 +39,5 @@ venv/
 # ── 기타 ──────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+data/BM_dog_pho/
+runs/

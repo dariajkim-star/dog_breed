@@ -33,7 +33,7 @@ def load_image(path: str | Path) -> np.ndarray:
 def crop_dog(img: np.ndarray, bbox: tuple[float, float, float, float]) -> np.ndarray:
     """dog bbox(x1, y1, x2, y2, 절대 픽셀)를 표준 규칙으로 crop한다.
 
-    규칙 전체(15% expand → clamp → square → gray-114 pad → 518px resize)는
+    규칙 전체(15% expand → square → clamp → gray-114 pad → 518px resize)는
     standard_crop()의 기본값에 위임 — 여기서 파라미터를 덮어쓰지 않는다.
     """
     pil = Image.fromarray(img)  # HWC uint8 → PIL RGB
@@ -51,8 +51,14 @@ def iter_split(split_dir: str | Path) -> Iterator[tuple[Path, str]]:
     if not split_dir.is_dir():
         raise FileNotFoundError(f"split 디렉터리가 없습니다: {split_dir}")
 
-    # 클래스 폴더를 이름순으로 — 재현 가능한 순서 보장
-    for class_dir in sorted(p for p in split_dir.iterdir() if p.is_dir()):
+    # 클래스 폴더만 골라 이름순으로 정렬 — 실행할 때마다 같은 순서 보장
+    class_dirs = []
+    for entry in split_dir.iterdir():
+        if entry.is_dir():
+            class_dirs.append(entry)
+    class_dirs.sort()
+
+    for class_dir in class_dirs:
         label = class_dir.name
         for img_path in sorted(class_dir.iterdir()):
             if img_path.is_file() and img_path.suffix.lower() in _IMAGE_EXTS:

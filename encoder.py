@@ -12,8 +12,14 @@ import numpy as np
 
 
 class BreedEncoder:
-    """DINOv2 ViT-S/14 frozen feature encoder."""
+    """DINOv2 ViT-S/14 frozen feature encoder.
 
+    공식 저장소: https://github.com/facebookresearch/dinov2
+    - 입력 한 변은 patch 크기 14의 배수여야 한다 (518 = 14 × 37)
+    - 전처리는 DINOv2 공식 transform과 동일한 ImageNet mean/std 정규화 사용
+    """
+
+    # ImageNet 통계값 — DINOv2가 학습 때 쓴 정규화 기준이라 추론 때도 똑같이 맞춰야 함
     _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
     _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
     EMBEDDING_DIM = 384
@@ -64,6 +70,7 @@ class BreedEncoder:
             x = self._preprocess(crop, size).to(self.device)
             emb = self.model(x).squeeze(0).cpu().numpy().astype(np.float32)
 
+        # L2 정규화 — max(..., 1e-12)는 0으로 나누기 방지 안전장치
         norm = np.linalg.norm(emb)
         return emb / max(norm, 1e-12)
 
@@ -79,12 +86,16 @@ class BreedEncoder:
 
         with torch.no_grad():
             for start in range(0, len(crops), batch_size):
-                batch = torch.cat(
-                    [self._preprocess(crop, size) for crop in crops[start : start + batch_size]],
-                    dim=0,
-                ).to(self.device)
+                # batch_size장씩 잘라서 전처리 → 하나의 배치 tensor로 합친다
+                tensor_list = []
+                for crop in crops[start : start + batch_size]:
+                    tensor_list.append(self._preprocess(crop, size))
+                batch = torch.cat(tensor_list, dim=0).to(self.device)
+
                 out = self.model(batch).cpu().numpy().astype(np.float32)
-                out /= np.maximum(np.linalg.norm(out, axis=1, keepdims=True), 1e-12)
+                # 행별 L2 정규화 (1e-12는 0 나누기 방지)
+                lengths = np.linalg.norm(out, axis=1, keepdims=True)
+                out = out / np.maximum(lengths, 1e-12)
                 embeddings.append(out)
 
         if not embeddings:
