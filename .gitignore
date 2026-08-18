@@ -22,6 +22,11 @@ processed/
 *.onnx
 *.npy
 *.npz
+
+# 실행하면 다시 생기는 산출물 — 확장자가 아니라 폴더로 막는다.
+# (*.npz만 막으면 trace crop 이미지 같은 부산물이 새어나간다.
+#  실제로 개인 사진에서 자른 crop이 커밋 대상으로 잡혔다.)
+artifacts/
 *.pkl
 runs/
 wandb/
