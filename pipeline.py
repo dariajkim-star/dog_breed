@@ -75,7 +75,7 @@ def build_and_save_prototypes(
 
     from prototype import build_prototypes
 
-    data = np.load(embeddings_npz, allow_pickle=True)
+    data = np.load(embeddings_npz)  # 문자열은 <U 배열로 저장되므로 pickle 불필요
     embeddings, labels = data["embeddings"], data["labels"]
 
     embs_by_class: Dict[str, List] = {}
@@ -107,7 +107,7 @@ def load_prototypes(path: Path | str) -> dict:
     """prototype npz → scoring 모듈이 사용하는 dict."""
     import numpy as np
 
-    data = np.load(path, allow_pickle=True)
+    data = np.load(path)  # allow_pickle=True면 변조된 npz로 임의 코드 실행 가능
 
     # npz의 breeds 배열(numpy 문자열)을 평범한 파이썬 문자열 리스트로 변환
     breeds = []

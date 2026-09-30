@@ -10,6 +10,9 @@ from typing import Optional
 
 import numpy as np
 
+# facebookresearch/dinov2 main, 2026-06-03 확인
+DINOV2_COMMIT = "7764ea0f912e53c92e82eb78a2a1631e92725fc8"
+
 
 class BreedEncoder:
     """DINOv2 ViT-S/14 frozen feature encoder.
@@ -32,7 +35,12 @@ class BreedEncoder:
         self.device = torch.device(
             device if device is not None else ("cuda" if torch.cuda.is_available() else "cpu")
         )
-        self.model = torch.hub.load("facebookresearch/dinov2", "dinov2_vits14")
+        # 커밋 고정: 브랜치 이름만 주면 캐시가 없을 때마다 main의 최신 hubconf 코드를 받아 실행한다.
+        # torch.hub 검증은 "현재 브랜치/태그 head"만 인정해서 main이 움직이면 고정 SHA를 거절하므로
+        # skip_validation=True가 필요하다 (공식 저장소 main에서 확인한 SHA라 포크 커밋 위험 없음).
+        self.model = torch.hub.load(
+            f"facebookresearch/dinov2:{DINOV2_COMMIT}", "dinov2_vits14", skip_validation=True
+        )
         self.model.eval()
         for parameter in self.model.parameters():
             parameter.requires_grad_(False)
